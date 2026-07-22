@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import { supabase } from "../lib/supabaseClient";
 import {
-  FAB, Modal, Field, inputCls, bnDate, bnNum, money, todayISO, monthKey, yearKey, EXPENSE_COLORS,
+  FAB, Modal, Field, inputCls, bnDate, bnNum, money, todayISO, toLocalISODate, monthKey, yearKey, EXPENSE_COLORS,
 } from "./ui";
 
 const CATEGORIES = ["খাবার", "যাতায়াত", "বাসাভাড়া", "কেনাকাটা", "স্বাস্থ্য", "বিনোদন", "অন্যান্য"];
@@ -83,7 +83,7 @@ export default function ExpensesTab({ expenses, userId, onAdd, onUpdate, onDelet
     if (range === "day") d.setDate(d.getDate() + dir);
     else if (range === "month") d.setMonth(d.getMonth() + dir);
     else d.setFullYear(d.getFullYear() + dir);
-    setCursor(d.toISOString().slice(0, 10));
+    setCursor(toLocalISODate(d));
   };
 
   return (
@@ -96,7 +96,18 @@ export default function ExpensesTab({ expenses, userId, onAdd, onUpdate, onDelet
 
       <div className="flex items-center justify-between mb-4 bg-[#1c2230] rounded-2xl p-3">
         <button onClick={() => shiftCursor(-1)} className="text-[#8B93A7] p-1"><ChevronLeft size={18} /></button>
-        <span className="text-sm text-[#EDEFF3] font-medium">{range === "day" ? bnDate(cursor) : range === "month" ? bnNum(monthKey(cursor)) : bnNum(yearKey(cursor))}</span>
+        <div className="relative">
+          <span className="text-sm text-[#EDEFF3] font-medium">{range === "day" ? bnDate(cursor) : range === "month" ? bnNum(monthKey(cursor)) : bnNum(yearKey(cursor))}</span>
+          {range === "day" && (
+            <input
+              type="date"
+              value={cursor}
+              onChange={(e) => { if (e.target.value) setCursor(e.target.value); }}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              aria-label="তারিখ বেছে নাও"
+            />
+          )}
+        </div>
         <button onClick={() => shiftCursor(1)} className="text-[#8B93A7] p-1"><ChevronRight size={18} /></button>
       </div>
 

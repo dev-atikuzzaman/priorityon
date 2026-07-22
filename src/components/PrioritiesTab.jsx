@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pencil, Trash2, Check, Flame, Bell, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import {
-  FAB, Modal, Field, inputCls, bnNum, bnDate, todayISO,
+  FAB, Modal, Field, inputCls, bnNum, bnDate, todayISO, toLocalISODate,
   CATEGORY_COLORS, MOTIVATION,
 } from "./ui";
 
@@ -81,7 +81,7 @@ export default function PrioritiesTab({ priorities, onAdd, onUpdate, onDelete })
   const shiftDate = (dir) => {
     const d = new Date(viewDate + "T00:00:00");
     d.setDate(d.getDate() + dir);
-    const next = d.toISOString().slice(0, 10);
+    const next = toLocalISODate(d);
     if (next > today) return; // no future dates
     setViewDate(next);
   };
@@ -91,11 +91,20 @@ export default function PrioritiesTab({ priorities, onAdd, onUpdate, onDelete })
       {/* Date navigator */}
       <div className="flex items-center justify-between mb-4 bg-[#1c2230] rounded-2xl p-3">
         <button onClick={() => shiftDate(-1)} className="text-[#8B93A7] p-1"><ChevronLeft size={18} /></button>
-        <div className="flex items-center gap-1.5">
+        <div className="relative flex items-center gap-1.5">
           <CalendarDays size={13} className="text-[#8B93A7]" />
           <span className="text-sm text-[#EDEFF3] font-medium">{isToday ? "আজ" : bnDate(viewDate)}</span>
+          {/* Invisible native date input laid over the label — tap it to open the device's date picker directly */}
+          <input
+            type="date"
+            value={viewDate}
+            max={today}
+            onChange={(e) => { if (e.target.value) setViewDate(e.target.value); }}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+            aria-label="তারিখ বেছে নাও"
+          />
           {!isToday && (
-            <button onClick={() => setViewDate(today)} className="text-[10px] text-amber-400 ml-1.5">আজকে ফিরে যাও</button>
+            <button onClick={() => setViewDate(today)} className="relative text-[10px] text-amber-400 ml-1.5">আজকে ফিরে যাও</button>
           )}
         </div>
         <button onClick={() => shiftDate(1)} disabled={isToday} className="text-[#8B93A7] p-1 disabled:opacity-30"><ChevronRight size={18} /></button>

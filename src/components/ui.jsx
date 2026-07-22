@@ -3,7 +3,18 @@ import { Plus, X } from "lucide-react";
 
 export const bnNum = (n) => String(n).replace(/[0-9]/g, (d) => "০১২৩৪৫৬৭৮৯"[d]);
 export const money = (n) => "৳" + bnNum(Number(n || 0).toLocaleString("en-IN"));
-export const todayISO = () => new Date().toISOString().slice(0, 10);
+
+// IMPORTANT: never use `date.toISOString().slice(0,10)` for local dates — it converts
+// to UTC first, which silently shifts the date by a day in timezones ahead of UTC
+// (like Bangladesh, UTC+6). Always build the YYYY-MM-DD string from local components.
+export const toLocalISODate = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+export const todayISO = () => toLocalISODate(new Date());
 export const monthKey = (d) => d.slice(0, 7);
 export const yearKey = (d) => d.slice(0, 4);
 

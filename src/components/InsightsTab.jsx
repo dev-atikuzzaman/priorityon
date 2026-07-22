@@ -7,14 +7,23 @@ import {
 
 const bnNum = (n) => String(n).replace(/[0-9]/g, (d) => "০১২৩৪৫৬৭৮৯"[d]);
 const money = (n) => "৳" + bnNum(Number(n || 0).toLocaleString("en-IN"));
-const todayISO = () => new Date().toISOString().slice(0, 10);
+const todayISO = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
 const WEEKDAY_BN = ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহঃ", "শুক্র", "শনি"];
 
 function isoDaysAgo(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 const QUOTES = {
@@ -68,9 +77,10 @@ export default function InsightsTab({ priorities, expenses }) {
 
   const expenseComparison = useMemo(() => {
     const now = new Date();
-    const thisMonthKey = now.toISOString().slice(0, 7);
+    const localMonthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const thisMonthKey = localMonthKey(now);
     const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const prevMonthKey = prevDate.toISOString().slice(0, 7);
+    const prevMonthKey = localMonthKey(prevDate);
     const sum = (key) => expenses.filter((e) => e.date.slice(0, 7) === key).reduce((s, e) => s + Number(e.amount), 0);
     return { thisMonth: sum(thisMonthKey), lastMonth: sum(prevMonthKey) };
   }, [expenses]);
