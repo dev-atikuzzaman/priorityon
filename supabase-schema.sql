@@ -3,7 +3,6 @@
 -- Supabase Dashboard → SQL Editor -এ পুরো ফাইলটা paste করে Run করো
 -- ==========================================================
 
--- 1) priorities (প্রায়োরিটি/হ্যাবিট)
 create table if not exists public.priorities (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -16,7 +15,6 @@ create table if not exists public.priorities (
   created_at timestamptz not null default now()
 );
 
--- 2) expenses (খরচ)
 create table if not exists public.expenses (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -28,7 +26,6 @@ create table if not exists public.expenses (
   created_at timestamptz not null default now()
 );
 
--- 3) debts (ধার-দেনা)
 create table if not exists public.debts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -42,7 +39,6 @@ create table if not exists public.debts (
   created_at timestamptz not null default now()
 );
 
--- ---------- Row Level Security ----------
 alter table public.priorities enable row level security;
 alter table public.expenses enable row level security;
 alter table public.debts enable row level security;
@@ -62,18 +58,10 @@ create policy "debts_insert_own" on public.debts for insert with check (auth.uid
 create policy "debts_update_own" on public.debts for update using (auth.uid() = user_id);
 create policy "debts_delete_own" on public.debts for delete using (auth.uid() = user_id);
 
--- ---------- Realtime ----------
--- Supabase Dashboard → Database → Replication -এ গিয়ে
--- priorities, expenses, debts টেবিল তিনটার জন্য Realtime চালু করে দাও।
--- (অথবা নিচের কমান্ড চালাতে পারো, যদি supabase_realtime publication আগে থেকেই থাকে)
 alter publication supabase_realtime add table public.priorities;
 alter publication supabase_realtime add table public.expenses;
 alter publication supabase_realtime add table public.debts;
 
--- ---------- Storage (রসিদের ছবি) ----------
--- Dashboard → Storage থেকে ম্যানুয়ালিও করা যায়:
--- 1. নতুন bucket তৈরি করো নাম দিয়ে: receipts
--- 2. bucket-টা "Public" করে দাও (public URL দিয়ে ছবি দেখানোর জন্য)
 insert into storage.buckets (id, name, public)
 values ('receipts', 'receipts', true)
 on conflict (id) do nothing;
