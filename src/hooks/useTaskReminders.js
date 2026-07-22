@@ -6,11 +6,6 @@ const nowHM = () => {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
-/**
- * Requests notification permission once, then checks every 30s whether any
- * priority's scheduled time (or 5 minutes before it) matches the current time.
- * Only fires while this tab/app is open — no service worker or server involved.
- */
 export function useTaskReminders(priorities) {
   const notifiedRef = useRef(new Set());
 

@@ -1,12 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-/**
- * Keeps a Postgres table in sync with local React state.
- * - Loads the user's rows once.
- * - Subscribes to postgres_changes (INSERT/UPDATE/DELETE) for realtime multi-device sync.
- * - Exposes insert/update/remove helpers that write through to Supabase.
- */
 export function useCloudCollection(table, userId, orderBy = "created_at") {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
