@@ -17,7 +17,6 @@ function AppShell({ user }) {
   const expenses = useCloudCollection("expenses", user.id);
   const debts = useCloudCollection("debts", user.id);
 
-  // Seed default priorities once for a brand-new user.
   useEffect(() => {
     if (!priorities.loading && priorities.rows.length === 0) {
       priorities.insertMany(DEFAULT_PRIORITIES);
