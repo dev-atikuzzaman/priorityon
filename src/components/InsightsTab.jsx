@@ -87,7 +87,6 @@ export default function InsightsTab({ priorities, expenses }) {
 
   return (
     <div className="px-4 pb-28 pt-5">
-      {/* Motivational summary card */}
       <div className="bg-[#1c2230] rounded-2xl p-4 mb-5 border border-white/5">
         <div className="flex items-center gap-2 mb-2">
           <div
@@ -113,7 +112,6 @@ export default function InsightsTab({ priorities, expenses }) {
         </p>
       </div>
 
-      {/* 14-day trend line */}
       <div className="bg-[#1c2230] rounded-2xl p-4 mb-5 border border-white/5">
         <p className="text-xs text-[#8B93A7] mb-2">গত ১৪ দিনের সম্পন্ন হারের ধারা</p>
         <ResponsiveContainer width="100%" height={140}>
@@ -130,7 +128,6 @@ export default function InsightsTab({ priorities, expenses }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Week-over-week bar comparison */}
       <div className="bg-[#1c2230] rounded-2xl p-4 mb-5 border border-white/5">
         <p className="text-xs text-[#8B93A7] mb-2">এই সপ্তাহ বনাম গত সপ্তাহ (দিনভিত্তিক)</p>
         <ResponsiveContainer width="100%" height={160}>
@@ -149,7 +146,6 @@ export default function InsightsTab({ priorities, expenses }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Expense month comparison */}
       <div className="bg-[#1c2230] rounded-2xl p-4 border border-white/5">
         <p className="text-xs text-[#8B93A7] mb-3">খরচ: এই মাস বনাম গত মাস</p>
         <div className="grid grid-cols-2 gap-3">

@@ -44,7 +44,7 @@ export default function ExpensesTab({ expenses, userId, onAdd, onUpdate, onDelet
     return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0])).slice(-6).map(([k, v]) => ({ label: k.slice(5) || k, value: v }));
   }, [expenses, range]);
 
-  const openAdd = () => { setForm({ amount: "", category: "খাবার", note: "", date: todayISO(), receipt: null }); setModal({ mode: "add" }); };
+  const openAdd = () => { setForm({ amount: "", category: "খাবার", note: "", date: cursor, receipt: null }); setModal({ mode: "add" }); };
   const openEdit = (item) => { setForm(item); setModal({ mode: "edit", id: item.id }); };
 
   const save = () => {
@@ -174,7 +174,7 @@ export default function ExpensesTab({ expenses, userId, onAdd, onUpdate, onDelet
             <input className={inputCls} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="কী বাবদ খরচ" />
           </Field>
           <Field label="তারিখ">
-            <input type="date" className={inputCls} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+            <input type="date" className={inputCls} value={form.date} max={todayISO()} onChange={(e) => setForm({ ...form, date: e.target.value })} />
           </Field>
           <Field label="রসিদ আপলোড (ঐচ্ছিক)">
             <label className="flex items-center gap-2 justify-center border border-dashed border-white/15 rounded-xl py-3 text-[#8B93A7] text-xs cursor-pointer">

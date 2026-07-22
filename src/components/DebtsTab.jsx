@@ -103,7 +103,7 @@ export default function DebtsTab({ debts, onAdd, onUpdate, onDelete }) {
             <input type="number" className={inputCls} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
           </Field>
           <Field label="তারিখ">
-            <input type="date" className={inputCls} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+            <input type="date" className={inputCls} value={form.date} max={todayISO()} onChange={(e) => setForm({ ...form, date: e.target.value })} />
           </Field>
           <Field label="নোট (ঐচ্ছিক)">
             <input className={inputCls} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="কারণ / সম্পদের বিবরণ" />

@@ -56,7 +56,7 @@ function LoginScreen() {
 }
 
 export default function AuthGate({ children }) {
-  const [session, setSession] = useState(undefined); // undefined = loading
+  const [session, setSession] = useState(undefined);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));

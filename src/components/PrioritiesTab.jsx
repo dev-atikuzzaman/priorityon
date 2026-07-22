@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pencil, Trash2, Check, Flame, Bell } from "lucide-react";
+import { Pencil, Trash2, Check, Flame, Bell, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import {
   FAB, Modal, Field, inputCls, bnNum, bnDate, todayISO,
   CATEGORY_COLORS, MOTIVATION,
@@ -31,10 +31,12 @@ function ProgressRing({ pct, size = 108 }) {
 export default function PrioritiesTab({ priorities, onAdd, onUpdate, onDelete }) {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({ name: "", category: "কাজ", planned_minutes: 15, time: "" });
+  const [viewDate, setViewDate] = useState(todayISO());
   const today = todayISO();
+  const isToday = viewDate === today;
 
-  const doneToday = priorities.filter((p) => (p.completed_dates || {})[today]).length;
-  const pct = priorities.length ? Math.round((doneToday / priorities.length) * 100) : 0;
+  const doneOnDate = priorities.filter((p) => (p.completed_dates || {})[viewDate]).length;
+  const pct = priorities.length ? Math.round((doneOnDate / priorities.length) * 100) : 0;
   const motivation = [...MOTIVATION].reverse().find((m) => pct >= m.min)?.text;
 
   const openAdd = () => { setForm({ name: "", category: "কাজ", planned_minutes: 15, time: "" }); setModal({ mode: "add" }); };
@@ -62,42 +64,66 @@ export default function PrioritiesTab({ priorities, onAdd, onUpdate, onDelete })
     setModal(null);
   };
 
-  const toggleToday = (item) => {
+  // Toggle completion for whichever date is currently being viewed (not just today).
+  const toggleOnDate = (item) => {
     const done = { ...(item.completed_dates || {}) };
     let streak = item.streak || 0;
-    if (done[today]) {
-      delete done[today];
-      streak = Math.max(0, streak - 1);
+    if (done[viewDate]) {
+      delete done[viewDate];
+      if (isToday) streak = Math.max(0, streak - 1);
     } else {
-      done[today] = true;
-      streak = streak + 1;
+      done[viewDate] = true;
+      if (isToday) streak = streak + 1;
     }
     onUpdate(item.id, { completed_dates: done, streak });
   };
 
+  const shiftDate = (dir) => {
+    const d = new Date(viewDate + "T00:00:00");
+    d.setDate(d.getDate() + dir);
+    const next = d.toISOString().slice(0, 10);
+    if (next > today) return; // no future dates
+    setViewDate(next);
+  };
+
   return (
     <div className="px-4 pb-28 pt-5">
+      {/* Date navigator */}
+      <div className="flex items-center justify-between mb-4 bg-[#1c2230] rounded-2xl p-3">
+        <button onClick={() => shiftDate(-1)} className="text-[#8B93A7] p-1"><ChevronLeft size={18} /></button>
+        <div className="flex items-center gap-1.5">
+          <CalendarDays size={13} className="text-[#8B93A7]" />
+          <span className="text-sm text-[#EDEFF3] font-medium">{isToday ? "আজ" : bnDate(viewDate)}</span>
+          {!isToday && (
+            <button onClick={() => setViewDate(today)} className="text-[10px] text-amber-400 ml-1.5">আজকে ফিরে যাও</button>
+          )}
+        </div>
+        <button onClick={() => shiftDate(1)} disabled={isToday} className="text-[#8B93A7] p-1 disabled:opacity-30"><ChevronRight size={18} /></button>
+      </div>
+
       <div className="flex flex-col items-center mb-6">
         <div className="relative">
           <ProgressRing pct={pct} />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-bold text-[#EDEFF3]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{bnNum(pct)}%</span>
-            <span className="text-[10px] text-[#8B93A7]">{bnNum(doneToday)}/{bnNum(priorities.length)}</span>
+            <span className="text-[10px] text-[#8B93A7]">{bnNum(doneOnDate)}/{bnNum(priorities.length)}</span>
           </div>
         </div>
         <p className="mt-4 text-center text-sm text-[#c9cee0] max-w-xs">{motivation}</p>
       </div>
 
-      <h2 className="text-[#8B93A7] text-xs uppercase tracking-wider mb-2">আজকের প্রায়োরিটি — {bnDate(today)}</h2>
+      <h2 className="text-[#8B93A7] text-xs uppercase tracking-wider mb-2">
+        {isToday ? "আজকের প্রায়োরিটি" : `${bnDate(viewDate)}-এর প্রায়োরিটি`}
+      </h2>
 
       <div className="space-y-2.5">
         {priorities.map((p) => {
-          const done = !!(p.completed_dates || {})[today];
+          const done = !!(p.completed_dates || {})[viewDate];
           const color = CATEGORY_COLORS[p.category] || "#8B93A7";
           return (
             <div key={p.id} className="flex items-center gap-3 bg-[#1c2230] rounded-2xl p-3.5 border border-white/5">
               <button
-                onClick={() => toggleToday(p)}
+                onClick={() => toggleOnDate(p)}
                 className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 transition"
                 style={{ borderColor: color, background: done ? color : "transparent" }}
               >
@@ -108,7 +134,7 @@ export default function PrioritiesTab({ priorities, onAdd, onUpdate, onDelete })
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: color + "22", color }}>{p.category}</span>
                   {p.time && <span className="text-[10px] text-[#8B93A7]">{p.time}</span>}
-                  {p.streak > 0 && (
+                  {isToday && p.streak > 0 && (
                     <span className="flex items-center gap-0.5 text-[10px] text-amber-400"><Flame size={11} />{bnNum(p.streak)}</span>
                   )}
                 </div>
