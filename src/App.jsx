@@ -8,10 +8,11 @@ import InsightsTab from "./components/InsightsTab";
 import { useCloudCollection } from "./hooks/useCloudCollection";
 import { useTaskReminders } from "./hooks/useTaskReminders";
 import { supabase } from "./lib/supabaseClient";
-import { DEFAULT_PRIORITIES, bnDate, todayISO } from "./components/ui";
+import { DEFAULT_PRIORITIES, bnDate, todayISO, Modal } from "./components/ui";
 
 function AppShell({ user }) {
   const [tab, setTab] = useState("priorities");
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const priorities = useCloudCollection("priorities", user.id);
   const expenses = useCloudCollection("expenses", user.id);
@@ -42,15 +43,46 @@ function AppShell({ user }) {
           <h1 className="text-[#EDEFF3] text-xl font-bold" style={{ fontFamily: "'Tiro Bangla', serif" }}>নিজের হিসাব</h1>
           <p className="text-[11px] text-[#8B93A7]">{bnDate(todayISO())}</p>
         </div>
-        <div className="flex items-center gap-2">
-          {user.user_metadata?.avatar_url && (
-            <img src={user.user_metadata.avatar_url} alt="" className="w-8 h-8 rounded-full border border-white/10" />
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="w-9 h-9 rounded-full border border-white/10 overflow-hidden shrink-0 flex items-center justify-center bg-[#1c2230]"
+          title="সেটিংস"
+        >
+          {user.user_metadata?.avatar_url ? (
+            <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-[#8B93A7] text-sm font-medium">
+              {(user.user_metadata?.full_name || user.email || "?")[0].toUpperCase()}
+            </span>
           )}
-          <button onClick={() => supabase.auth.signOut()} className="text-[#8B93A7] p-1.5" title="সাইন আউট">
-            <LogOut size={16} />
-          </button>
-        </div>
+        </button>
       </header>
+
+      {settingsOpen && (
+        <Modal title="সেটিংস" onClose={() => setSettingsOpen(false)}>
+          <div className="flex items-center gap-3 mb-5 bg-[#14181f] rounded-2xl p-3.5 border border-white/5">
+            <div className="w-11 h-11 rounded-full border border-white/10 overflow-hidden shrink-0 flex items-center justify-center bg-[#1c2230]">
+              {user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[#8B93A7] text-base font-medium">
+                  {(user.user_metadata?.full_name || user.email || "?")[0].toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm text-[#EDEFF3] font-medium truncate">{user.user_metadata?.full_name || "ইউজার"}</p>
+              <p className="text-xs text-[#8B93A7] truncate">{user.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="w-full flex items-center justify-center gap-2 bg-[#E5626E]/10 text-[#E5626E] font-semibold rounded-xl py-2.5"
+          >
+            <LogOut size={16} /> সাইন আউট
+          </button>
+        </Modal>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center h-[60vh] text-[#8B93A7] text-sm">সিঙ্ক হচ্ছে…</div>
